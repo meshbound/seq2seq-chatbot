@@ -1,4 +1,4 @@
-# Seq2Seq Chatbot
+# Seq2Seq Chatbot - Discord implementation 
 
 This is a 200 lines implementation of Twitter/Cornell-Movie Chatbot, please read the following references before you read the code:
 
