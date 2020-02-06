@@ -7,15 +7,40 @@ import numpy as np
 from tensorlayer.cost import cross_entropy_seq, cross_entropy_seq_with_mask
 from tqdm import tqdm
 from sklearn.utils import shuffle
-from data.twitter import data
+import pickle
 from tensorlayer.models.seq2seq import Seq2seq
 from tensorlayer.models.seq2seq_with_attention import Seq2seqLuongAttention
 import os
 
+def load_data(PATH=''):
+    # read data control dictionaries
+    try:
+        with open(PATH + 'metadata.pkl', 'rb') as f:
+            metadata = pickle.load(f)
+    except:
+        metadata = None
+    # read numpy arrays
+    #with open(PATH + 'metadata.pkl', 'rb') as f:
+    # metadata = pickle.load(f)
 
-def initial_setup(data_corpus):
-    metadata, idx_q, idx_a = data.load_data(PATH='data/{}/'.format(data_corpus))
-    (trainX, trainY), (testX, testY), (validX, validY) = data.split_dataset(idx_q, idx_a)
+    idx_q = np.load(PATH + 'idx_q.npy')
+    idx_a = np.load(PATH + 'idx_a.npy')
+    return metadata, idx_q, idx_a
+
+def split_dataset(x, y, ratio=[0.7, 0.15, 0.15]):
+    # number of examples
+    data_len = len(x)
+    lens = [int(data_len * item) for item in ratio]
+
+    trainX, trainY = x[:lens[0]], y[:lens[0]]
+    testX, testY = x[lens[0]:lens[0] + lens[1]], y[lens[0]:lens[0] + lens[1]]
+    validX, validY = x[-lens[-1]:], y[-lens[-1]:]
+
+    return (trainX, trainY), (testX, testY), (validX, validY)
+
+def initial_setup():
+    metadata, idx_q, idx_a = load_data(PATH='PATH_TO_DATA_FOLDER')
+    (trainX, trainY), (testX, testY), (validX, validY) = split_dataset(idx_q, idx_a)
     trainX = tl.prepro.remove_pad_sequences(trainX.tolist())
     trainY = tl.prepro.remove_pad_sequences(trainY.tolist())
     testX = tl.prepro.remove_pad_sequences(testX.tolist())
@@ -27,10 +52,9 @@ def initial_setup(data_corpus):
 
 
 if __name__ == "__main__":
-    data_corpus = "twitter"
 
     #data preprocessing
-    metadata, trainX, trainY, testX, testY, validX, validY = initial_setup(data_corpus)
+    metadata, trainX, trainY, testX, testY, validX, validY = initial_setup()
 
     # Parameters
     src_len = len(trainX)
@@ -40,6 +64,7 @@ if __name__ == "__main__":
 
     batch_size = 32
     n_step = src_len // batch_size
+    print(trainX)
     src_vocab_size = len(metadata['idx2w']) # 8002 (0~8001)
     emb_dim = 1024
 
@@ -58,7 +83,7 @@ if __name__ == "__main__":
 
     src_vocab_size = tgt_vocab_size = src_vocab_size + 2
 
-    num_epochs = 50
+    num_epochs = 1000
     vocabulary_size = src_vocab_size
     
 
@@ -91,11 +116,11 @@ if __name__ == "__main__":
     # load_weights = tl.files.load_npz(name='model.npz')
     # tl.files.assign_weights(load_weights, model_)
 
+
     optimizer = tf.optimizers.Adam(learning_rate=0.001)
     model_.train()
 
-    seeds = ["happy birthday have a nice day",
-                 "donald trump won last nights presidential debate according to snap online polls"]
+    seeds = ["hello", "who are you", "how are you doing"]
     for epoch in range(num_epochs):
         model_.train()
         trainX, trainY = shuffle(trainX, trainY, random_state=0)
@@ -125,7 +150,8 @@ if __name__ == "__main__":
             n_iter += 1
 
         # printing average loss after every epoch
-        print('Epoch [{}/{}]: loss {:.4f}'.format(epoch + 1, num_epochs, total_loss / n_iter))
+        # print('Epoch [{}/{}]: loss {:.4f}'.format(epoch + 1, num_epochs, total_loss / n_iter))
+        print('Epoch [{}/{}]: loss {:.4f}'.format(epoch + 1, num_epochs, total_loss))
 
         for seed in seeds:
             print("Query >", seed)
@@ -135,8 +161,3 @@ if __name__ == "__main__":
                 print(" >", ' '.join(sentence))
 
         tl.files.save_npz(model_.all_weights, name='model.npz')
-
-
-        
-    
-    

@@ -44,3 +44,9 @@ Query > donald trump won last nights presidential debate according to snap onlin
  > he is not a racist
  > he is a liar
  > trump needs to be president
+
+### Discord implementation
+
+- You will need to first set several paths that are missing.
+- The sterralizeInput for preprocessing of csv files taken from a discord chat
+- The bot tolken must be entered in the run file
