@@ -45,6 +45,8 @@ Query > donald trump won last nights presidential debate according to snap onlin
  > he is a liar
  > trump needs to be president
 
+```
+
 ### Discord implementation
 
 - You will need to first set several paths that are missing.
