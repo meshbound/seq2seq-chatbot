@@ -1,7 +1,7 @@
 EN_WHITELIST = '0123456789abcdefghijklmnopqrstuvwxyz '  # space is included in whitelist
 EN_BLACKLIST = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~\''
 
-FILENAME = 'C:/Users/jackc/Desktop/DeepYGAdvanced/files/data/cleanData.txt'
+FILENAME = ''
 
 limit = {
     'maxq': 20,
